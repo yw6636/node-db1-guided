@@ -1,3 +1,5 @@
+const db = require('../../data/db-config')
+
 module.exports = {
   get,
   getById,
@@ -7,21 +9,32 @@ module.exports = {
 }
 
 async function get() {
-  return 'get wired'
+  // const result = db.raw('select * from shippers;') --> This is an easy way out. NOT a proper way
+  const result = await db('shippers')
+    // .select('phone', 'shippername')
+  return result
 }
 
-async function getById() {
-  return 'getById wired'
+async function getById(shipperId) {
+  // const result = await db.raw('select * from shippers where shipperid = 1;')
+  const result = await db('shippers').where('shipperid', shipperId).first()
+  return result 
 }
 
-async function create() {
-  return 'create wired'
+async function create(shipper) {
+  const [shipperId] = await db('shippers').insert(shipper)
+  const result = await getById(shipperId)
+  return result
 }
 
-async function update() {
-  return 'update wired'
+async function update(shipperId, changes) {
+  await db('shippers').update(changes).where('shipperid', shipperId)
+  const result = await getById(shipperId)
+  return result
 }
 
-async function remove() {
-  return 'delete wired'
+async function remove(shipperId) {
+  const toBeDeleted = await getById(shipperId)
+  await db('shippers').del().where('shipperid', shipperId)
+  return toBeDeleted
 }
